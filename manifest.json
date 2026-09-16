@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "Intonations-Analyse",
+  "short_name": "Intonation",
+  "description": "Chromatisches Stimmgerät mit grafischer Darstellung der Intonationsabweichung über den gesamten Tonumfang eines Blasinstruments.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#171310",
+  "theme_color": "#171310",
+  "categories": ["music", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

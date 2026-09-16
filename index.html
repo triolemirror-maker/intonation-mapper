@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intonations-Analyse</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#171310">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root {
+    --bg: #171310;
+    --panel: #211c17;
+    --panel-2: #2a231c;
+    --border: #392f24;
+    --brass: #c9a24b;
+    --brass-bright: #e3c077;
+    --flat: #5b93ab;
+    --sharp: #c1502e;
+    --text: #ede6d9;
+    --text-muted: #93876f;
+    --text-faint: #5c5343;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 10px 8px 24px;
+  }
+
+  section, .chart-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  section { margin-bottom: 10px; }
+
+  /* ---------- Left: vertical chart ---------- */
+
+  .chart-panel {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    height: min(80vh, 720px);
+    min-height: 360px;
+  }
+
+  .chart-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 4px;
+  }
+
+  .chart-head h2 {
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .chart-head span {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+  }
+
+  .chart-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 6px;
+  }
+
+  .chart-scroll::-webkit-scrollbar { width: 6px; }
+  .chart-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  canvas { display: block; }
+
+  .legend {
+    margin-top: 8px;
+    font-size: 0.62rem;
+    line-height: 1.35;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Right: tuner + controls ---------- */
+
+  .control-panel { flex: 1 1 0; min-width: 0; }
+
+  header { margin-bottom: 10px; }
+
+  h1 {
+    font-size: 0.98rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+
+  header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.74rem;
+    line-height: 1.35;
+  }
+
+  .hero { text-align: center; padding: 12px 6px 12px; }
+
+  .hero-note {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1;
+    transition: color 0.15s ease;
+  }
+
+  .hero-note.idle { color: var(--text-faint); }
+
+  .hero-sub {
+    margin-top: 6px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+
+  .hero-sub .cents-val { font-weight: 700; }
+
+  .meter {
+    position: relative;
+    height: 22px;
+    margin: 12px 2px 4px;
+    background: linear-gradient(90deg, var(--flat) 0%, var(--panel-2) 45%, var(--panel-2) 55%, var(--sharp) 100%);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .meter::before {
+    content: '';
+    position: absolute;
+    left: 50%; top: 0; bottom: 0; width: 2px;
+    background: var(--text-faint);
+    transform: translateX(-50%);
+  }
+
+  .meter-tick {
+    position: absolute;
+    top: 2px; bottom: 2px; width: 3px;
+    border-radius: 2px;
+    background: var(--brass-bright);
+    box-shadow: 0 0 8px rgba(227, 192, 119, 0.7);
+    transform: translateX(-50%);
+    transition: left 0.08s linear;
+    left: 50%;
+  }
+
+  .status-line {
+    margin-top: 8px;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    min-height: 0;
+    line-height: 1.3;
+  }
+
+  .status-line.error { color: var(--sharp); }
+
+  .controls-row { display: flex; flex-direction: column; gap: 8px; }
+
+  button {
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    cursor: pointer;
+    background: var(--panel-2);
+    color: var(--text);
+    transition: background 0.15s, border-color 0.15s;
+    width: 100%;
+  }
+
+  button:hover { border-color: var(--brass); }
+
+  button.primary {
+    background: var(--brass);
+    color: #221a0f;
+    border-color: var(--brass);
+  }
+
+  button.primary.listening {
+    background: var(--sharp);
+    border-color: var(--sharp);
+    color: #fff0e9;
+  }
+
+  button.primary:hover { filter: brightness(1.08); }
+  button.ghost { background: transparent; }
+
+  .field-row { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .field { width: 100%; }
+
+  .field label {
+    display: block;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  select, input[type="number"] {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.8rem;
+    padding: 8px 9px;
+    border-radius: 6px;
+  }
+
+  .a4-stepper { display: flex; align-items: stretch; gap: 4px; }
+  .a4-stepper input { text-align: center; }
+  .a4-stepper button { padding: 0 12px; font-size: 1rem; width: auto; }
+
+  footer {
+    color: var(--text-faint);
+    font-size: 0.7rem;
+    line-height: 1.45;
+    padding: 4px 2px 0;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="chart-panel">
+    <div class="chart-head">
+      <h2>Tonumfang</h2>
+      <span id="rangeLabel"></span>
+    </div>
+    <div class="chart-scroll">
+      <canvas id="chart"></canvas>
+    </div>
+    <div class="legend">Punkt = Ø-Abweichung des Tons · Zahl im Punkt = Anzahl gespielter Töne</div>
+  </aside>
+
+  <main class="control-panel">
+    <header>
+      <h1>Intonations-Analyse</h1>
+    </header>
+
+    <section class="hero">
+      <div class="hero-note idle" id="noteDisplay">—</div>
+      <div class="hero-sub">
+        <span id="freqDisplay">— Hz</span>
+        <span class="cents-val" id="centsDisplay">—</span>
+      </div>
+      <div class="meter"><div class="meter-tick" id="meterTick"></div></div>
+      <div class="status-line" id="statusLine"></div>
+    </section>
+
+    <section>
+      <div class="controls-row">
+        <button class="primary" id="micBtn">Mic an</button>
+        <button class="ghost" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="instrumentSelect">Instrument</label>
+          <select id="instrumentSelect"></select>
+        </div>
+        <div class="field" id="a4Field">
+          <label for="a4Input">Kammerton (Hz)</label>
+          <div class="a4-stepper">
+            <button type="button" id="a4Down">−</button>
+            <input type="number" id="a4Input" value="440" min="415" max="466" step="1">
+            <button type="button" id="a4Up">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-row" id="customRangeRow" style="display:none;">
+        <div class="field">
+          <label for="lowSelect">Tiefster Ton</label>
+          <select id="lowSelect"></select>
+        </div>
+        <div class="field">
+          <label for="highSelect">Höchster Ton</label>
+          <select id="highSelect"></select>
+        </div>
+      </div>
+
+      <div class="field-row" id="transposeRow" style="display:none;">
+        <div class="field">
+          <label>Notendarstellung</label>
+          <button type="button" id="transposeToggle" class="ghost">Klingend</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Die Erkennung läuft lokal im Browser über das Mikrofon; es werden keine Aufnahmen gespeichert oder übertragen. Ein Ton zählt erst, wenn er kurz stabil gehalten wurde. Die Hz- und Notenanzeige reagiert auf Tonwechsel sofort, glättet aber kleine Schwankungen während eines gehaltenen Tons.
+    </footer>
+  </main>
+
+</div>
+
+<script>
+(function () {
+  const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  function midiToName(m) {
+    return NOTE_NAMES[((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1);
+  }
+  function midiToFreq(m, a4) { return a4 * Math.pow(2, (m - 69) / 12); }
+  function freqToMidi(f, a4) { return 69 + 12 * Math.log2(f / a4); }
+
+  // Approximate concert-pitch (sounding) ranges, as MIDI numbers, plus the
+  // transposition interval in semitones: writtenMidi = concertMidi + transpose.
+  const INSTRUMENTS = [
+    { name: 'Flöte',              low: 60, high: 96, transpose: 0 },
+    { name: 'Sopransax',          low: 56, high: 88, transpose: 2 },
+    { name: 'Altsax',             low: 49, high: 81, transpose: 9 },
+    { name: 'Tenorsax',           low: 44, high: 76, transpose: 14 },
+    { name: 'Baritonsax',         low: 37, high: 69, transpose: 21 },
+    { name: 'Klarinette (B)',     low: 50, high: 89, transpose: 2 },
+    { name: 'Oboe',               low: 58, high: 93, transpose: 0 },
+    { name: 'Fagott',             low: 34, high: 75, transpose: 0 },
+    { name: 'Trompete (B)',       low: 54, high: 86, transpose: 2 },
+    { name: 'Horn (F)',           low: 35, high: 77, transpose: 7 },
+    { name: 'Posaune',            low: 40, high: 77, transpose: 0 },
+    { name: 'Tuba',               low: 26, high: 65, transpose: 0 },
+    { name: 'Eigener Bereich',    low: 55, high: 79, transpose: 0, custom: true }
+  ];
+
+  const els = {
+    noteDisplay: document.getElementById('noteDisplay'),
+    freqDisplay: document.getElementById('freqDisplay'),
+    centsDisplay: document.getElementById('centsDisplay'),
+    meterTick: document.getElementById('meterTick'),
+    statusLine: document.getElementById('statusLine'),
+    micBtn: document.getElementById('micBtn'),
+    resetBtn: document.getElementById('resetBtn'),
+    instrumentSelect: document.getElementById('instrumentSelect'),
+    a4Input: document.getElementById('a4Input'),
+    a4Down: document.getElementById('a4Down'),
+    a4Up: document.getElementById('a4Up'),
+    customRangeRow: document.getElementById('customRangeRow'),
+    lowSelect: document.getElementById('lowSelect'),
+    highSelect: document.getElementById('highSelect'),
+    rangeLabel: document.getElementById('rangeLabel'),
+    chart: document.getElementById('chart'),
+    chartScroll: document.querySelector('.chart-scroll'),
+    transposeRow: document.getElementById('transposeRow'),
+    transposeToggle: document.getElementById('transposeToggle'),
+  };
+
+  INSTRUMENTS.forEach((inst, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = inst.name;
+    els.instrumentSelect.appendChild(opt);
+  });
+  const DEFAULT_IDX = Math.max(0, INSTRUMENTS.findIndex(function (inst) { return inst.name === 'Altsax'; }));
+  els.instrumentSelect.value = DEFAULT_IDX;
+
+  for (let m = 24; m <= 100; m++) {
+    const o1 = document.createElement('option');
+    o1.value = m; o1.textContent = midiToName(m);
+    els.lowSelect.appendChild(o1);
+    const o2 = document.createElement('option');
+    o2.value = m; o2.textContent = midiToName(m);
+    els.highSelect.appendChild(o2);
+  }
+
+  const LEFT_LABEL_W = 42;
+
+  let state = {
+    a4: 440,
+    lowMidi: INSTRUMENTS[DEFAULT_IDX].low,
+    highMidi: INSTRUMENTS[DEFAULT_IDX].high,
+    transpose: INSTRUMENTS[DEFAULT_IDX].transpose,
+    transposeMode: 'concert', // 'concert' (klingend) | 'written' (transponiert)
+    stats: {},        // concertMidi -> { sum, count }
+    listening: false,
+    audioCtx: null,
+    analyser: null,
+    stream: null,
+    rafId: null,
+    history: [],
+    silenceFrames: 0,
+    lastConfirmedMidi: null,
+    onsetMidi: null,
+    onsetFrames: 0,
+    activeDisplayMidi: null,
+    disp: { midi: null, cents: 0, freq: 0 }, // smoothed values for the live readout
+    rowH: 16, totalW: 200, plotW: 158, totalH: 400,
+  };
+
+  function getDisplayMidi(concertMidi) {
+    return state.transposeMode === 'written' ? concertMidi + state.transpose : concertMidi;
+  }
+
+  function applyInstrument() {
+    const inst = INSTRUMENTS[els.instrumentSelect.value];
+    if (inst.custom) {
+      els.customRangeRow.style.display = 'flex';
+      els.lowSelect.value = state.lowMidi;
+      els.highSelect.value = state.highMidi;
+    } else {
+      els.customRangeRow.style.display = 'none';
+      state.lowMidi = inst.low;
+      state.highMidi = inst.high;
+    }
+    state.transpose = inst.transpose || 0;
+    els.transposeRow.style.display = state.transpose !== 0 ? 'flex' : 'none';
+    state.stats = {};
+    state.history = [];
+    state.lastConfirmedMidi = null;
+    state.onsetMidi = null;
+    state.onsetFrames = 0;
+    layoutChart();
+    drawChart();
+    updateRangeLabel();
+  }
+
+  function updateRangeLabel() {
+    els.rangeLabel.textContent = midiToName(getDisplayMidi(state.lowMidi)) + ' – ' + midiToName(getDisplayMidi(state.highMidi));
+  }
+
+  function setTransposeMode(mode) {
+    state.transposeMode = mode;
+    els.transposeToggle.textContent = mode === 'concert' ? 'Klingend' : 'Transponiert';
+    updateRangeLabel();
+    drawChart();
+  }
+  els.transposeToggle.addEventListener('click', () => {
+    setTransposeMode(state.transposeMode === 'concert' ? 'written' : 'concert');
+  });
+
+  els.instrumentSelect.addEventListener('change', applyInstrument);
+  els.lowSelect.addEventListener('change', () => {
+    state.lowMidi = parseInt(els.lowSelect.value, 10);
+    if (state.lowMidi >= state.highMidi) state.lowMidi = state.highMidi - 1;
+    state.stats = {}; state.history = []; state.lastConfirmedMidi = null; state.onsetMidi = null; state.onsetFrames = 0;
+    layoutChart(); drawChart(); updateRangeLabel();
+  });
+  els.highSelect.addEventListener('change', () => {
+    state.highMidi = parseInt(els.highSelect.value, 10);
+    if (state.highMidi <= state.lowMidi) state.highMidi = state.lowMidi + 1;
+    state.stats = {}; state.history = []; state.lastConfirmedMidi = null; state.onsetMidi = null; state.onsetFrames = 0;
+    layoutChart(); drawChart(); updateRangeLabel();
+  });
+
+  function clampA4(v) { return Math.min(466, Math.max(415, v)); }
+  els.a4Input.addEventListener('change', () => {
+    state.a4 = clampA4(parseInt(els.a4Input.value, 10) || 440);
+    els.a4Input.value = state.a4;
+  });
+  els.a4Down.addEventListener('click', () => { state.a4 = clampA4(state.a4 - 1); els.a4Input.value = state.a4; });
+  els.a4Up.addEventListener('click', () => { state.a4 = clampA4(state.a4 + 1); els.a4Input.value = state.a4; });
+
+  els.resetBtn.addEventListener('click', () => {
+    state.stats = {};
+    state.history = [];
+    state.lastConfirmedMidi = null;
+    state.onsetMidi = null;
+    state.onsetFrames = 0;
+    drawChart();
+  });
+
+  // ---------- vertical chart ----------
+  let ctx = els.chart.getContext('2d');
+
+  const TICK_LABEL_H = 14; // reserved strip at the top of the canvas for the cent tick numbers
+
+  function layoutChart() {
+    const numNotes = state.highMidi - state.lowMidi + 1;
+    const availH = els.chartScroll.clientHeight || 480;
+    const availW = els.chartScroll.clientWidth || 200;
+    let rowH = (availH - TICK_LABEL_H) / numNotes;
+    rowH = Math.max(9, rowH);
+    const totalW = availW;
+    const plotW = Math.max(60, availW - LEFT_LABEL_W);
+    const totalH = TICK_LABEL_H + rowH * numNotes;
+    const dpr = window.devicePixelRatio || 1;
+    els.chart.style.width = totalW + 'px';
+    els.chart.style.height = totalH + 'px';
+    els.chart.width = totalW * dpr;
+    els.chart.height = totalH * dpr;
+    ctx = els.chart.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    state.rowH = rowH; state.totalW = totalW; state.plotW = plotW; state.totalH = totalH;
+  }
+
+  const CHART_RANGE = 30; // cents shown edge-to-edge; larger deviations are clamped and flagged in red
+  const TICK_VALUES = [-30, -20, -10, 0, 10, 20, 30];
+  const LABELED_TICKS = [-30, -20, -10, 10, 20, 30];
+
+  function drawChart() {
+    const rowH = state.rowH, totalW = state.totalW, totalH = state.totalH, plotW = state.plotW;
+    ctx.clearRect(0, 0, totalW, totalH);
+
+    const xCenter = LEFT_LABEL_W + plotW / 2;
+
+    TICK_VALUES.forEach(v => {
+      const x = Math.round(xCenter + (v / CHART_RANGE) * (plotW / 2)) + 0.5;
+      ctx.strokeStyle = v === 0 ? '#5c5343' : '#2a231c';
+      ctx.beginPath();
+      ctx.moveTo(x, TICK_LABEL_H);
+      ctx.lineTo(x, totalH);
+      ctx.stroke();
+    });
+
+    ctx.fillStyle = '#5c5343';
+    ctx.font = '9px ui-monospace, Menlo, Consolas, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    LABELED_TICKS.forEach(v => {
+      const x = xCenter + (v / CHART_RANGE) * (plotW / 2);
+      ctx.textAlign = v === -CHART_RANGE ? 'left' : v === CHART_RANGE ? 'right' : 'center';
+      ctx.fillText(String(v), x, TICK_LABEL_H / 2);
+    });
+    ctx.textAlign = 'center';
+
+    let i = 0;
+    for (let m = state.highMidi; m >= state.lowMidi; m--, i++) {
+      const rowY = TICK_LABEL_H + i * rowH;
+      const centerY = rowY + rowH / 2;
+      const isActive = state.listening && state.activeDisplayMidi === m;
+
+      if (i % 2 === 1) { ctx.fillStyle = 'rgba(255,255,255,0.015)'; ctx.fillRect(0, rowY, totalW, rowH); }
+      if (isActive) { ctx.fillStyle = 'rgba(201, 162, 75, 0.12)'; ctx.fillRect(0, rowY, totalW, rowH); }
+
+      const name = midiToName(getDisplayMidi(m));
+      ctx.fillStyle = '#93876f';
+      ctx.font = Math.max(9, Math.min(13, rowH * 0.6)).toFixed(0) + 'px ui-monospace, Menlo, Consolas, monospace';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(name, LEFT_LABEL_W - 6, centerY);
+
+      const s = state.stats[m];
+      if (s) {
+        const avg = s.sum / s.count;
+        const outOfRange = Math.abs(avg) > CHART_RANGE;
+        const clamped = Math.max(-CHART_RANGE, Math.min(CHART_RANGE, avg));
+        const x = xCenter + (clamped / CHART_RANGE) * (plotW / 2);
+        const r = Math.max(6, Math.min(9, rowH * 0.42));
+        ctx.beginPath();
+        ctx.arc(x, centerY, r, 0, Math.PI * 2);
+        ctx.fillStyle = outOfRange ? '#c1502e' : '#c9a24b';
+        ctx.fill();
+        ctx.fillStyle = outOfRange ? '#fff0e9' : '#221a0f';
+        ctx.font = '700 ' + Math.max(8, r * 0.95).toFixed(0) + 'px ui-monospace, Menlo, Consolas, monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(s.count), x, centerY + 0.5);
+      }
+    }
+  }
+
+  window.addEventListener('resize', () => { layoutChart(); drawChart(); });
+
+  // ---------- pitch detection ----------
+  function autoCorrelate(buf, sampleRate) {
+    const SIZE = buf.length;
+    let rms = 0;
+    for (let i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
+    rms = Math.sqrt(rms / SIZE);
+    if (rms < 0.012) return -1;
+
+    const thres = 0.2;
+    let r1 = 0, r2 = SIZE - 1;
+    for (let i = 0; i < SIZE / 2; i++) { if (Math.abs(buf[i]) < thres) { r1 = i; break; } }
+    for (let i = 1; i < SIZE / 2; i++) { if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; } }
+    const trimmed = buf.slice(r1, r2);
+    const n = trimmed.length;
+    if (n < 8) return -1;
+
+    const c = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      let sum = 0;
+      for (let j = 0; j < n - i; j++) sum += trimmed[j] * trimmed[j + i];
+      c[i] = sum;
+    }
+
+    let d = 0;
+    while (d < n - 1 && c[d] > c[d + 1]) d++;
+    let maxVal = -1, maxPos = -1;
+    for (let i = d; i < n; i++) { if (c[i] > maxVal) { maxVal = c[i]; maxPos = i; } }
+    if (maxPos <= 0) return -1;
+
+    const x1 = c[maxPos - 1] !== undefined ? c[maxPos - 1] : c[maxPos];
+    const x2 = c[maxPos];
+    const x3 = c[maxPos + 1] !== undefined ? c[maxPos + 1] : c[maxPos];
+    const a = (x1 + x3 - 2 * x2) / 2;
+    const b = (x3 - x1) / 2;
+    let T0 = maxPos;
+    if (a) T0 = maxPos - b / (2 * a);
+    if (T0 <= 0) return -1;
+
+    return sampleRate / T0;
+  }
+
+  const HISTORY_LEN = 12;
+  const STABLE_MATCHES = 8;
+  const SILENCE_FRAMES_TO_RELEASE = 6;    // short gap → chart may re-count a repeated note
+  const DISPLAY_SILENCE_FRAMES = 26;      // longer, confirmed silence → live readout goes idle (~450ms)
+  const LIVE_SMOOTHING = 0.10;            // continuous inertia for the live readout — always applied, never a one-off snap
+  const ONSET_SETTLE_FRAMES = 9;          // ignore this many frames after a note starts (attack transient) before it counts toward the chart average
+
+  function colorForCents(c) {
+    const abs = Math.abs(c);
+    if (abs <= 5) return '#c9a24b';
+    return c < 0 ? '#5b93ab' : '#c1502e';
+  }
+
+  function processFrame() {
+    const buf = new Float32Array(state.analyser.fftSize);
+    state.analyser.getFloatTimeDomainData(buf);
+    const freq = autoCorrelate(buf, state.audioCtx.sampleRate);
+
+    if (freq === -1 || freq < 60 || freq > 4000) {
+      state.silenceFrames++;
+      if (state.silenceFrames >= SILENCE_FRAMES_TO_RELEASE) {
+        state.lastConfirmedMidi = null;
+        state.history = [];
+        state.onsetMidi = null;
+        state.onsetFrames = 0;
+      }
+      if (state.silenceFrames >= DISPLAY_SILENCE_FRAMES) {
+        state.activeDisplayMidi = null;
+        state.disp.midi = null;
+        els.noteDisplay.textContent = '—';
+        els.noteDisplay.classList.add('idle');
+        els.freqDisplay.textContent = '— Hz';
+        els.centsDisplay.textContent = '—';
+        els.centsDisplay.style.color = 'var(--text-muted)';
+        els.meterTick.style.left = '50%';
+      }
+      // else: a brief gap — keep showing the last live reading, nothing is reset yet
+    } else {
+      state.silenceFrames = 0;
+      const exact = freqToMidi(freq, state.a4);
+      const nearestRaw = Math.round(exact);
+      let rawCents = (exact - nearestRaw) * 100;
+      rawCents = Math.max(-50, Math.min(50, rawCents));
+
+      // Live readout: a permanently running, damped average — fed by every
+      // valid frame, never a one-off snap. A single stray reading just
+      // nudges it slightly instead of resetting anything.
+      if (state.disp.midi === null) {
+        state.disp.midi = nearestRaw;
+        state.disp.cents = rawCents;
+        state.disp.freq = freq;
+      } else {
+        state.disp.midi = nearestRaw;
+        state.disp.cents += (rawCents - state.disp.cents) * LIVE_SMOOTHING;
+        state.disp.freq += (freq - state.disp.freq) * LIVE_SMOOTHING;
+      }
+
+      els.noteDisplay.textContent = midiToName(getDisplayMidi(state.disp.midi));
+      els.noteDisplay.classList.remove('idle');
+      els.freqDisplay.textContent = state.disp.freq.toFixed(1) + ' Hz';
+      const rounded = Math.round(state.disp.cents);
+      els.centsDisplay.textContent = (rounded > 0 ? '+' : '') + rounded + ' Ct';
+      els.centsDisplay.style.color = colorForCents(state.disp.cents);
+      els.meterTick.style.left = (50 + state.disp.cents) + '%';
+      els.meterTick.style.background = colorForCents(state.disp.cents);
+
+      state.activeDisplayMidi = state.disp.midi;
+
+      // Chart confirmation: let the note's attack settle first (wind
+      // instruments take a moment to lock onto a stable pitch), only then
+      // start feeding the rolling majority-vote window used to confirm it.
+      if (nearestRaw === state.onsetMidi) {
+        state.onsetFrames++;
+      } else {
+        state.onsetMidi = nearestRaw;
+        state.onsetFrames = 1;
+      }
+
+      if (state.onsetFrames >= ONSET_SETTLE_FRAMES) {
+        state.history.push({ midi: nearestRaw, cents: rawCents });
+        if (state.history.length > HISTORY_LEN) state.history.shift();
+
+        const matches = state.history.filter(function (h) { return h.midi === nearestRaw; });
+        if (matches.length >= STABLE_MATCHES && state.lastConfirmedMidi !== nearestRaw) {
+          const avgCents = matches.reduce(function (sum, h) { return sum + h.cents; }, 0) / matches.length;
+          if (nearestRaw >= state.lowMidi && nearestRaw <= state.highMidi) {
+            const s = state.stats[nearestRaw] || { sum: 0, count: 0 };
+            s.sum += avgCents;
+            s.count += 1;
+            state.stats[nearestRaw] = s;
+          }
+          state.lastConfirmedMidi = nearestRaw;
+        }
+      }
+    }
+
+    drawChart();
+    state.rafId = requestAnimationFrame(processFrame);
+  }
+
+  function setStatus(msg, isError) {
+    els.statusLine.textContent = msg;
+    els.statusLine.classList.toggle('error', !!isError);
+  }
+
+  async function startMic() {
+    try {
+      state.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = state.audioCtx.createMediaStreamSource(state.stream);
+      state.analyser = state.audioCtx.createAnalyser();
+      state.analyser.fftSize = 2048;
+      source.connect(state.analyser);
+      state.listening = true;
+      els.micBtn.textContent = 'Mic aus';
+      els.micBtn.classList.add('listening');
+      setStatus('');
+      processFrame();
+    } catch (err) {
+      setStatus('Mikrofonzugriff nicht möglich (' + err.name + '). Öffne die Datei in einem eigenen Browser-Tab und erlaube das Mikrofon.', true);
+    }
+  }
+
+  function stopMic() {
+    state.listening = false;
+    if (state.rafId) cancelAnimationFrame(state.rafId);
+    if (state.stream) state.stream.getTracks().forEach(t => t.stop());
+    if (state.audioCtx) state.audioCtx.close();
+    state.activeDisplayMidi = null;
+    state.disp.midi = null;
+    els.micBtn.textContent = 'Mic an';
+    els.micBtn.classList.remove('listening');
+    setStatus('');
+    els.noteDisplay.textContent = '—';
+    els.noteDisplay.classList.add('idle');
+    els.freqDisplay.textContent = '— Hz';
+    els.centsDisplay.textContent = '—';
+    els.meterTick.style.left = '50%';
+    drawChart();
+  }
+
+  els.micBtn.addEventListener('click', () => { if (state.listening) stopMic(); else startMic(); });
+
+  applyInstrument();
+})();
+</script>
+</body>
+</html>
