@@ -659,7 +659,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     text-align: right;
     white-space: nowrap;
     overflow: hidden;
-    padding: 5px 8px;
+    padding: 3px 7px;
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--panel-2);
@@ -670,7 +670,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   #centsDisplay { width: 7.5ch; }
 
   .hero-note {
-    font-size: 1.2rem;
+    font-size: 0.85rem;
     font-weight: 700;
     line-height: 1.25;
     transition: color 0.15s ease;
@@ -679,12 +679,12 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .hero-note.idle { color: var(--text-faint); }
 
   .hero-row #freqDisplay {
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     line-height: 1.25;
     color: var(--text-muted);
   }
 
-  .hero-row .cents-val { font-weight: 700; font-size: 0.78rem; line-height: 1.25; }
+  .hero-row .cents-val { font-weight: 700; font-size: 0.85rem; line-height: 1.25; }
 
   .meter {
     position: relative;
@@ -759,6 +759,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   button.primary:hover { filter: brightness(1.08); }
   button.ghost { background: transparent; }
+
+  .privacy-field { margin-top: 14px; text-align: center; }
+  .privacy-link { font-size: 0.74rem; color: var(--text-muted); text-decoration: underline; padding: 6px 10px; display: inline-block; }
+  .privacy-link:hover { color: var(--brass); }
 
   .field-row { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
   .field { width: 100%; }
@@ -1156,6 +1160,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     <div class="field">
       <button type="button" class="ghost" id="openParamsBtn">Messparameter</button>
     </div>
+
+    <div class="field privacy-field">
+      <a id="privacyLink" class="privacy-link" href="datenschutz.html" target="_blank" rel="noopener">Datenschutz</a>
+    </div>
   </div>
 </div>
 
@@ -1269,9 +1277,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 <script>
 (function () {
   // International: C4 = Eingestrichenes c (MIDI 60); Flats statt nur Sharps
-  const NOTE_NAMES_INT = ['C','C\u266F','D','E\u266D','E','F','F\u266F','G','A\u266D','A','B\u266D','B'];
+  const NOTE_NAMES_INT = ['C','C\u266F','D','E\u266D','E','F','F\u266F','G','G\u266F','A','B\u266D','B'];
   // Deutsch: Cis, Es, Fis, As, B (= B-flat), H (= B natural)
-  const NOTE_NAMES_DE = ['C','Cis','D','Es','E','F','Fis','G','As','A','B','H'];
+  const NOTE_NAMES_DE = ['C','Cis','D','Es','E','F','Fis','G','Gis','A','B','H'];
   const SUP_DIGITS = ['\u2070','\u00B9','\u00B2','\u00B3','\u2074','\u2075','\u2076','\u2077','\u2078','\u2079'];
   const SUB_DIGITS = ['\u2080','\u2081','\u2082','\u2083','\u2084','\u2085','\u2086','\u2087','\u2088','\u2089'];
   function midiToName(m) {
@@ -1308,7 +1316,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       saveMenuLabel: 'Profil speichern/laden', fieldInstrumentLabel: 'Instrument:', fieldHerstellerLabel: 'Hersteller:', fieldModellLabel: 'Modell:', fieldSnLabel: 'Seriennummer:',
       saveProfileBtnLabel: 'Profil speichern', loadProfileBtnLabel: 'Profil laden', createPdfBtnLabel: 'PDF erstellen', backToListLabel: '← Zurück',
       noProfilesYet: 'Noch keine Profile gespeichert.', deleteLabel: 'Löschen', confirmDelete: 'Dieses Profil wirklich löschen?',
-      dateLabel: 'Datum', paramsMenuLabel: 'Messparameter', infoMenuLabel: 'Info',
+      dateLabel: 'Datum', paramsMenuLabel: 'Messparameter', infoMenuLabel: 'Info', privacyLabel: 'Datenschutz',
       infoText: 'Diese App soll dir helfen, die Qualität der Intonation eines Instruments zu beurteilen. Der Chart, der sich Ton für Ton füllt, zeigt dir die Abweichung von der reinen Stimmung über den gesamten Tonumfang. Mehrfach gespielte Töne werden ausgemittelt, die Zahl der Messungen im Messpunkt angezeigt.\n\nEin Ton zählt erst, wenn er kurz stabil gehalten wurde. Die Hz- und Notenanzeige reagiert auf Tonwechsel sofort, glättet aber kleine Schwankungen während eines gehaltenen Tons.\n\nDer "Score" soll Güte der Stimmung ausdrücken und ist eher eine Spielerei.\n\nDu kannst die App natürlich auch verwenden, um dein eigenes Spiel zu trainieren.\n\nSie läuft vollständig lokal – nichts wird nachgeladen, keine Daten verlassen das Gerät.\n\nDie App ist kostenlos und ohne Werbung – mit einer Ausnahme: Wenn dir das Programm gefällt und du dich erkenntlich zeigen willst, bestell einfach deine nächste Packung Blätter, Ventilöl oder dein nächstes SELMER Supreme bei triole.de.\n\nVielen Dank!\n\nEntwickelt von: TRIOLE Julian Loehr, KI',
       paramOnsetLabel: 'Einschwingzeit (Chart)', paramSmoothLabel: 'Trägheit (Live-Tuner)', paramConfidenceLabel: 'Erkennungssicherheit (Chart)', paramSilenceLabel: 'Ton-Ende-Schwelle', paramSensitivityLabel: 'Mikrofon-Empfindlichkeit', paramsResetLabel: 'Zurücksetzen',
       paramOnsetInfo: 'Wie lange ein neu angespielter Ton ignoriert wird, bevor er in die Chart-Messung einfließt. Höhere Werte filtern das Einschwingen zuverlässiger, reagieren aber etwas langsamer.',
@@ -1337,7 +1345,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       saveMenuLabel: 'Save/load profile', fieldInstrumentLabel: 'Instrument:', fieldHerstellerLabel: 'Manufacturer:', fieldModellLabel: 'Model:', fieldSnLabel: 'Serial number:',
       saveProfileBtnLabel: 'Save profile', loadProfileBtnLabel: 'Load profile', createPdfBtnLabel: 'Create PDF', backToListLabel: '← Back',
       noProfilesYet: 'No profiles saved yet.', deleteLabel: 'Delete', confirmDelete: 'Really delete this profile?',
-      dateLabel: 'Date', paramsMenuLabel: 'Measurement parameters', infoMenuLabel: 'Info',
+      dateLabel: 'Date', paramsMenuLabel: 'Measurement parameters', infoMenuLabel: 'Info', privacyLabel: 'Privacy policy',
       infoText: 'This app is designed to help you assess the intonation quality of an instrument. The chart, which fills in note by note, shows the deviation from pure tuning across the entire range. Notes played multiple times are averaged, with the number of measurements shown in each point.\n\nA note only counts once it has been held steady for a moment. The Hz and note display reacts instantly to a new note but smooths out small fluctuations while a note is held.\n\nThe "Score" is meant to express the overall tuning quality, and is more of a bit of fun.\n\nYou can of course also use the app to train your own playing.\n\nIt runs entirely locally – nothing is loaded from the internet, no data leaves your device.\n\nThe app is free and ad-free – with one exception: if you like the app and want to show your appreciation, simply order your next pack of reeds, valve oil, or your next Selmer Supreme at triole.de.\n\nThank you!\n\nDeveloped by: TRIOLE Julian Loehr, AI',
       paramOnsetLabel: 'Onset settle time (chart)', paramSmoothLabel: 'Inertia (live tuner)', paramConfidenceLabel: 'Detection confidence (chart)', paramSilenceLabel: 'Note-end threshold', paramSensitivityLabel: 'Microphone sensitivity', paramsResetLabel: 'Reset',
       paramOnsetInfo: 'How long a freshly played note is ignored before it counts toward the chart measurement. Higher values filter out the attack more reliably but react a bit slower.',
@@ -1366,7 +1374,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       saveMenuLabel: 'Enregistrer/charger un profil', fieldInstrumentLabel: 'Instrument :', fieldHerstellerLabel: 'Fabricant :', fieldModellLabel: 'Modèle :', fieldSnLabel: 'Numéro de série :',
       saveProfileBtnLabel: 'Enregistrer le profil', loadProfileBtnLabel: 'Charger un profil', createPdfBtnLabel: 'Créer un PDF', backToListLabel: '← Retour',
       noProfilesYet: 'Aucun profil enregistré pour le moment.', deleteLabel: 'Supprimer', confirmDelete: 'Vraiment supprimer ce profil ?',
-      dateLabel: 'Date', paramsMenuLabel: 'Paramètres de mesure', infoMenuLabel: 'Infos',
+      dateLabel: 'Date', paramsMenuLabel: 'Paramètres de mesure', infoMenuLabel: 'Infos', privacyLabel: 'Politique de confidentialité',
       infoText: "Cette appli doit t'aider à évaluer la qualité de l'intonation d'un instrument. Le graphique, qui se remplit note par note, montre l'écart par rapport à l'accord juste sur toute la tessiture. Les notes jouées plusieurs fois sont moyennées, le nombre de mesures étant indiqué dans chaque point.\n\nUne note ne compte que si elle a été tenue stable un court instant. L'affichage Hz et note réagit immédiatement à un changement de note, mais lisse les petites fluctuations pendant qu'une note est tenue.\n\nLe « Score » est censé exprimer la qualité de l'accord, et est plutôt un gadget.\n\nTu peux bien sûr aussi utiliser l'appli pour entraîner ton propre jeu.\n\nElle fonctionne entièrement en local – rien n'est chargé depuis internet, aucune donnée ne quitte l'appareil.\n\nL'appli est gratuite et sans publicité – à une exception près\u00A0: si le programme te plaît et que tu veux nous remercier, commande simplement ton prochain paquet d'anches, de l'huile pour pistons, ou ta prochaine Selmer Supreme sur triole.de.\n\nMerci beaucoup\u00A0!\n\nDéveloppé par\u00A0: TRIOLE Julian Loehr, IA",
       paramOnsetLabel: 'Temps de stabilisation (graphique)', paramSmoothLabel: 'Inertie (accordeur en direct)', paramConfidenceLabel: 'Fiabilité de détection (graphique)', paramSilenceLabel: 'Seuil de fin de note', paramSensitivityLabel: 'Sensibilité du microphone', paramsResetLabel: 'Réinitialiser',
       paramOnsetInfo: "Combien de temps une note qui vient d'être jouée est ignorée avant de compter dans la mesure du graphique. Des valeurs plus élevées filtrent mieux l'attaque, mais réagissent un peu plus lentement.",
@@ -1395,7 +1403,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       saveMenuLabel: 'Guardar/cargar perfil', fieldInstrumentLabel: 'Instrumento:', fieldHerstellerLabel: 'Fabricante:', fieldModellLabel: 'Modelo:', fieldSnLabel: 'Número de serie:',
       saveProfileBtnLabel: 'Guardar perfil', loadProfileBtnLabel: 'Cargar perfil', createPdfBtnLabel: 'Crear PDF', backToListLabel: '← Volver',
       noProfilesYet: 'Aún no hay perfiles guardados.', deleteLabel: 'Eliminar', confirmDelete: '¿Eliminar este perfil?',
-      dateLabel: 'Fecha', paramsMenuLabel: 'Parámetros de medición', infoMenuLabel: 'Info',
+      dateLabel: 'Fecha', paramsMenuLabel: 'Parámetros de medición', infoMenuLabel: 'Info', privacyLabel: 'Política de privacidad',
       infoText: 'Esta app está pensada para ayudarte a evaluar la calidad de entonación de un instrumento. El gráfico, que se va completando nota a nota, muestra la desviación respecto a la afinación pura en todo el registro. Las notas tocadas varias veces se promedian, y el número de mediciones se muestra en cada punto.\n\nUna nota solo cuenta cuando se ha mantenido estable un instante. La indicación de Hz y nota reacciona al instante ante un cambio de nota, pero suaviza las pequeñas fluctuaciones mientras se mantiene una nota.\n\nEl «Score» pretende expresar la calidad de la afinación, y es más bien un detalle curioso.\n\nPor supuesto también puedes usar la app para entrenar tu propia interpretación.\n\nFunciona completamente en local: no se carga nada de internet, ningún dato sale de tu dispositivo.\n\nLa app es gratuita y sin publicidad, con una excepción: si te gusta el programa y quieres mostrarnos tu agradecimiento, simplemente pide tu próximo paquete de cañas, aceite para pistones, o tu próximo Selmer Supreme en triole.de.\n\n¡Muchas gracias!\n\nDesarrollado por: TRIOLE Julian Loehr, IA',
       paramOnsetLabel: 'Tiempo de estabilización (gráfico)', paramSmoothLabel: 'Inercia (afinador en vivo)', paramConfidenceLabel: 'Fiabilidad de detección (gráfico)', paramSilenceLabel: 'Umbral de fin de nota', paramSensitivityLabel: 'Sensibilidad del micrófono', paramsResetLabel: 'Restablecer',
       paramOnsetInfo: 'Cuánto tiempo se ignora una nota recién tocada antes de que cuente en la medición del gráfico. Valores más altos filtran mejor el ataque, pero reaccionan algo más lento.',
@@ -1432,7 +1440,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       { key: 'altg', low: 55, high: 91, transpose: 5 }
     ] },
     { key: 'saxophon', variants: [
-      { key: 'sopran', low: 56, high: 88, transpose: 2 },
+      { key: 'sopran', low: 56, high: 89, transpose: 2 },
       { key: 'alt', low: 49, high: 81, transpose: 9 },
       { key: 'tenor', low: 44, high: 76, transpose: 14 },
       { key: 'bariton', low: 36, high: 69, transpose: 21 },
@@ -1923,6 +1931,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     els.themeLightBtn.textContent = t('themeLight');
     els.languageLabelEl.textContent = t('languageLabel');
     els.openParamsBtn.textContent = t('paramsMenuLabel');
+    document.getElementById('privacyLink').textContent = t('privacyLabel');
     els.openInfoBtn.textContent = t('infoMenuLabel');
     els.infoModalTitleEl.textContent = t('infoMenuLabel');
     if (els.infoOverlay.classList.contains('open')) renderInfoBody();
@@ -2257,12 +2266,18 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     state.rowH = rowH; state.totalW = totalW; state.plotW = plotW; state.totalH = totalH;
   }
 
-  const CHART_RANGE = 40; // cents shown edge-to-edge; larger deviations are clamped and flagged in the "out of range" color
-  const EDGE_MARGIN = 9; // minimum that still keeps the largest dots (r≤9) and the ±40 labels from clipping
-  const SHARED_TICKS = [-40, 0, 40];       // always drawn, present in both tick sets
-  const SHARED_LABELED = [-40, 40];
-  const COARSE_ONLY = [-20, 20];           // narrow (split) view: fewer labels so they don't overlap
-  const FINE_ONLY = [-30, -20, -10, 10, 20, 30];    // wide (chart-fullscreen) view: finer breakdown
+  // Cents shown edge-to-edge: ±40 in the normal (split) view, ±50 in the chart-fullscreen view.
+  // The range follows the fullscreen animation (state.tickBlend 0 → 1), so the dots slide smoothly.
+  // Larger deviations are clamped and flagged in the "out of range" color.
+  const CHART_RANGE_NARROW = 40;
+  const CHART_RANGE_WIDE = 50;
+  const CHART_RANGE = CHART_RANGE_NARROW; // used for the PDF's out-of-range (diamond) threshold
+  function currentRange() { return CHART_RANGE_NARROW + (CHART_RANGE_WIDE - CHART_RANGE_NARROW) * state.tickBlend; }
+  const EDGE_MARGIN = 9; // minimum that still keeps the largest dots (r≤9) and the outermost labels from clipping
+  const SHARED_TICKS = [0];                // always drawn (centre line), no label
+  const SHARED_LABELED = [];
+  const COARSE_ONLY = [-40, -20, 20, 40];  // narrow (split) view: fewer labels so they don't overlap
+  const FINE_ONLY = [-50, -40, -30, -20, -10, 10, 20, 30, 40, 50];    // wide (chart-fullscreen) view: finer breakdown
 
   function tickLabel(v) { return v > 0 ? '+' + v : String(v); }
 
@@ -2271,7 +2286,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     const theme = CANVAS_THEME[state.theme];
     ctx.globalAlpha = alpha;
     values.forEach(v => {
-      const x = Math.round(xCenter + (v / CHART_RANGE) * halfRange) + 0.5;
+      const x = Math.round(xCenter + (v / currentRange()) * halfRange) + 0.5;
       ctx.strokeStyle = v === 0 ? theme.gridMain : theme.gridMinor;
       ctx.beginPath();
       ctx.moveTo(x, TICK_LABEL_H);
@@ -2282,7 +2297,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     ctx.font = '9px ui-monospace, Menlo, Consolas, monospace';
     ctx.textBaseline = 'middle';
     labeled.forEach(v => {
-      const x = xCenter + (v / CHART_RANGE) * halfRange;
+      const x = xCenter + (v / currentRange()) * halfRange;
       ctx.textAlign = 'center';
       ctx.fillText(tickLabel(v), x, TICK_LABEL_H / 2);
     });
@@ -2300,11 +2315,11 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     const bl = Math.round(a.b + (b.b - a.b) * p);
     return '#' + [r, g, bl].map(x => x.toString(16).padStart(2, '0')).join('');
   }
-  // Score runs 1 (best) to 10 (worst); color eases from green (best) through
-  // brass (mid) to red (worst) — the intuitive good→bad direction.
+  // Score runs 1 (worst) to 10 (best); color eases from green (best) through
+  // brass (mid) to red (worst). p = 0 is best, p = 1 is worst.
   function scoreColor(score) {
     const theme = CANVAS_THEME[state.theme];
-    const p = (Math.max(1, Math.min(10, score)) - 1) / 9;
+    const p = (10 - Math.max(1, Math.min(10, score))) / 9;
     return p <= 0.5 ? mixHex(theme.good, theme.dotIn, p / 0.5) : mixHex(theme.dotIn, theme.sharp, (p - 0.5) / 0.5);
   }
 
@@ -2319,7 +2334,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     let score = null;
     if (measured > 0) {
       const avgAbs = sumAbs / measured;
-      score = Math.max(1, Math.min(10, 1 + (avgAbs / 50) * 9));
+      score = Math.max(1, Math.min(10, 10 - (avgAbs / 50) * 9));
     }
     return { coverage: coverage, score: score };
   }
@@ -2370,9 +2385,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       const s = state.stats[m];
       if (s) {
         const avg = s.sum / s.count;
-        const outOfRange = Math.abs(avg) > CHART_RANGE;
-        const clamped = Math.max(-CHART_RANGE, Math.min(CHART_RANGE, avg));
-        const x = xCenter + (clamped / CHART_RANGE) * halfRange;
+        const rng = currentRange();
+        const outOfRange = Math.abs(avg) > rng;
+        const clamped = Math.max(-rng, Math.min(rng, avg));
+        const x = xCenter + (clamped / rng) * halfRange;
         const r = Math.max(6, Math.min(9, rowH * 0.42));
         ctx.beginPath();
         ctx.arc(x, centerY, r, 0, Math.PI * 2);
@@ -2616,7 +2632,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     dotIn: '#000000', dotOut: '#c1272d', dotTextIn: '#ffffff', dotTextOut: '#ffffff'
   };
   function printScoreColor(score) {
-    const p = (Math.max(1, Math.min(10, score)) - 1) / 9;
+    const p = (10 - Math.max(1, Math.min(10, score))) / 9;
     return p <= 0.5 ? mixHex('#1b7a1b', '#000000', p / 0.5) : mixHex('#000000', '#c1272d', (p - 0.5) / 0.5);
   }
 
@@ -2771,6 +2787,22 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   els.themeDarkBtn.classList.toggle('active', state.theme === 'dark');
   els.themeLightBtn.classList.toggle('active', state.theme === 'light');
   applyInstrument();
+
+  // Hochformat erzwingen (best effort; zusätzlich steht orientation=portrait im Manifest)
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      const lockPortrait = function () { screen.orientation.lock('portrait').catch(function () {}); };
+      lockPortrait();
+      document.addEventListener('click', lockPortrait, { once: true });
+    }
+  } catch (e) {}
+
+  // Offline-Start: Service Worker speichert die zuletzt geladene Version (nur bei http/https, nicht bei lokal geöffneter Datei)
+  try {
+    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+      window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    }
+  } catch (e) {}
 })();
 </script>
 </body>
