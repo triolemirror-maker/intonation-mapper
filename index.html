@@ -1090,7 +1090,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
           </div>
         </div>
 
-        <div class="field-row" id="transposeRow" style="display:none;">
+        <div class="field-row" id="transposeRow">
           <div class="field">
             <label id="notationLabelEl">Notendarstellung</label>
             <button type="button" id="transposeToggle" class="ghost">Notiert</button>
@@ -1825,7 +1825,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       state.highMidi = inst.high;
     }
     state.transpose = inst.transpose || 0;
-    els.transposeRow.style.display = state.transpose !== 0 ? 'flex' : 'none';
+    els.transposeToggle.disabled = state.transpose === 0;
     state.stats = {};
     state.history = [];
     state.lastConfirmedMidi = null;
@@ -2069,7 +2069,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     state.onsetFrames = 0;
 
     updateInstrumentTriggerText();
-    els.transposeRow.style.display = state.transpose !== 0 ? 'flex' : 'none';
+    els.transposeToggle.disabled = state.transpose === 0;
     const inst = currentInstrument();
     els.customRangeRow.style.display = inst.custom ? 'flex' : 'none';
     if (inst.custom) { els.lowSelect.value = state.lowMidi; els.highSelect.value = state.highMidi; }

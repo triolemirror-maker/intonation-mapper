@@ -1,4 +1,4 @@
-/* Service Worker: Offline-Start der Intonations-Analyse.
+/* Service Worker: Offline-Start von Intonate.
    Strategie "Netz zuerst, sonst zuletzt gespeicherte Version":
    - Mit Internet: aktuelle Version laden und im Speicher ablegen.
    - Ohne Internet (oder Netz zu langsam): die zuletzt gespeicherte Version starten. */

@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Intonations-Analyse",
-  "short_name": "Intonation",
+  "name": "Intonate",
+  "short_name": "Intonate",
   "description": "Chromatisches Stimmgerät mit grafischer Darstellung der Intonationsabweichung über den gesamten Tonumfang eines Blasinstruments.",
   "lang": "de",
   "dir": "ltr",
